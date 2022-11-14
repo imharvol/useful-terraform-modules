@@ -74,6 +74,10 @@ resource "aws_s3_bucket_public_access_block" "email" {
   restrict_public_buckets = true
 }
 
+locals {
+  aws_ses_receipt_rule_name = "${var.domain_name}-save-s3"
+}
+
 resource "aws_s3_bucket_policy" "email" {
   bucket = aws_s3_bucket.email.id
   policy = jsonencode({
@@ -90,38 +94,22 @@ resource "aws_s3_bucket_policy" "email" {
         "Condition" : {
           "StringEquals" : {
             "AWS:SourceAccount" : "${data.aws_caller_identity.current.account_id}",
-            "AWS:SourceArn" : "${aws_ses_receipt_rule.store.arn}"
+            "AWS:SourceArn" : "arn:aws:ses:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:receipt-rule-set/${data.aws_ses_active_receipt_rule_set.main.rule_set_name}:receipt-rule/${local.aws_ses_receipt_rule_name}"
+            #"AWS:SourceArn" : "${aws_ses_receipt_rule.store.arn}" # Can't do because of dependencies
           }
         }
       }
     ]
   })
-  # policy = jsonencode({
-  #   "Version" : "2012-10-17",
-  #   "Statement" : [
-  #     {
-  #       "Sid" : "AllowSESPuts",
-  #       "Effect" : "Allow",
-  #       "Principal" : {
-  #         "Service" : "ses.amazonaws.com"
-  #       },
-  #       "Action" : "s3:PutObject",
-  #       "Resource" : "${aws_s3_bucket.email.arn}/*",
-  #       "Condition" : {
-  #         "StringEquals" : {
-  #           "AWS:SourceAccount" : "${data.aws_caller_identity.current.account_id}"
-  #         },
-  #         "StringLike" : {
-  #           "AWS:SourceArn" : "arn:aws:ses:*"
-  #         }
-  #       }
-  #     }
-  #   ]
-  # })
 }
 
 resource "aws_ses_receipt_rule" "store" {
-  name          = "${var.domain_name}-save-s3"
+  # For some reason this is needed
+  depends_on = [
+    aws_s3_bucket_policy.email
+  ]
+
+  name          = local.aws_ses_receipt_rule_name
   rule_set_name = data.aws_ses_active_receipt_rule_set.main.rule_set_name
 
   enabled      = true
