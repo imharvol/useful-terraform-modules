@@ -47,13 +47,12 @@ provider "aws" {
 module "basic_route53_and_certificate" {
   source = "./basic-route53-and-certificate"
 
-  project_name = local.project_name
-  domain_name  = local.domain_name
-
   providers = {
     aws           = aws
     aws.us_east_1 = aws.us_east_1
   }
+
+  domain_name = local.domain_name
 }
 
 module "s3_cloudfront" {
@@ -64,8 +63,15 @@ module "s3_cloudfront" {
     aws.us_east_1 = aws.us_east_1
   }
 
-  project_name = local.project_name
-  domain_name  = local.domain_name
+  depends_on = [module.basic_route53_and_certificate]
+
+  domain_name = local.domain_name
+}
+
+module "simple_email" {
+  source = "./simple-email"
 
   depends_on = [module.basic_route53_and_certificate]
+
+  domain_name = local.domain_name
 }
