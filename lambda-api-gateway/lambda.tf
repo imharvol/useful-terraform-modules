@@ -1,5 +1,5 @@
-resource "aws_iam_role" "api" {
-  name = "${var.api_domain_name}-api-function-role"
+resource "aws_iam_role" "api_function" {
+  name = "${replace(var.api_domain_name, ".", "-")}-api-function-role"
 
   assume_role_policy = jsonencode(
     {
@@ -25,7 +25,7 @@ resource "aws_lambda_function" "api" {
   source_code_hash = filebase64sha256("function.zip")
   layers           = var.function_layers
 
-  role    = aws_iam_role.api.arn
+  role    = aws_iam_role.api_function.arn
   runtime = "nodejs16.x"
   handler = "index.handler"
 }
@@ -53,7 +53,7 @@ resource "aws_iam_policy" "api_function_logging" {
 }
 
 resource "aws_iam_role_policy_attachment" "api_function_logging" {
-  role       = aws_iam_role.api.name
+  role       = aws_iam_role.api_function.name
   policy_arn = aws_iam_policy.api_function_logging.arn
 }
 
