@@ -23,6 +23,7 @@ resource "aws_lambda_function" "api" {
 
   filename         = "function.zip"
   source_code_hash = filebase64sha256("function.zip")
+  layers           = var.function_layers
 
   role    = aws_iam_role.api.arn
   runtime = "nodejs16.x"

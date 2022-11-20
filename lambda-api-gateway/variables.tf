@@ -12,3 +12,9 @@ variable "function_zip" {
   description = "Function ZIP archive"
   type        = string
 }
+
+variable "function_layers" {
+  description = "List of function layers"
+  type        = list(string)
+  default     = []
+}

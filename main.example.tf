@@ -84,4 +84,5 @@ module "lambda_api_gateway" {
   base_domain_name = local.domain_name
   api_domain_name  = "api.${local.domain_name}"
   function_zip     = "function.zip"
+  function_layers  = [] // This should be an array of ARNs
 }
