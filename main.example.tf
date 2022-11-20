@@ -75,3 +75,13 @@ module "simple_email" {
 
   domain_name = local.domain_name
 }
+
+module "lambda_api_gateway" {
+  source = "./lambda-api-gateway"
+
+  depends_on = [module.basic_route53_and_certificate]
+
+  base_domain_name = local.domain_name
+  api_domain_name  = "api.${local.domain_name}"
+  function_zip     = "function.zip"
+}
