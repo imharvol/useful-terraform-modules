@@ -65,7 +65,8 @@ module "s3_cloudfront" {
 
   depends_on = [module.basic_route53_and_certificate]
 
-  domain_name = local.domain_name
+  base_domain_name       = local.domain_name
+  cloudfront_domain_name = local.domain_name
 }
 
 module "simple_email" {

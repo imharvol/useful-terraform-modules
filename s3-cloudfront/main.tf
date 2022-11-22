@@ -1,6 +1,6 @@
 # - Create a S3 Bucket as origin for CloudFront and disable all public access to the bucket except for CloudFront
-# - Create a CloudFront distribution for var.domain_name
-# - Create an Alias record on var.domain_name's hosted zone that points to CloudFront
+# - Create a CloudFront distribution for var.cloudfront_domain_name
+# - Create an Alias record on var.base_domain_name's hosted zone that points to CloudFront
 
 terraform {
   required_providers {
@@ -15,7 +15,7 @@ terraform {
 # S3
 
 resource "aws_s3_bucket" "website" {
-  bucket = var.domain_name
+  bucket = var.cloudfront_domain_name
 
   force_destroy = true
 }
@@ -80,7 +80,7 @@ resource "aws_cloudfront_distribution" "website" {
   default_root_object = "index.html"
   http_version        = "http2and3"
 
-  aliases = [var.domain_name]
+  aliases = [var.cloudfront_domain_name]
 
   default_cache_behavior {
     allowed_methods  = ["HEAD", "GET"]
@@ -124,7 +124,7 @@ resource "aws_cloudfront_distribution" "website" {
 
 resource "aws_route53_record" "domain_cloudfront" {
   zone_id = data.aws_route53_zone.domain.zone_id
-  name    = var.domain_name
+  name    = var.cloudfront_domain_name
   type    = "A"
 
   alias {
