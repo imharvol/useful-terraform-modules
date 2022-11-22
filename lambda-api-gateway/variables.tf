@@ -18,3 +18,9 @@ variable "function_layers" {
   type        = list(string)
   default     = []
 }
+
+variable "api_origins" {
+  description = "List API origins"
+  type        = list(string)
+  default     = []
+}
