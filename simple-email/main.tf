@@ -11,7 +11,7 @@ resource "aws_ses_domain_mail_from" "domain" {
   mail_from_domain = "bounce.${aws_ses_domain_identity.domain.domain}"
 }
 
-# This is not needed anymore. DKIN is enough
+# This is not needed anymore. DKIM is enough
 # resource "aws_route53_record" "domain_identity" {
 #   zone_id = data.aws_route53_zone.domain.id
 #   name    = "_amazonses.${var.domain_name}"
