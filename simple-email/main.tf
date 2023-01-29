@@ -14,7 +14,7 @@ resource "aws_ses_domain_mail_from" "domain" {
 # This is not needed anymore. DKIM is enough
 # resource "aws_route53_record" "domain_identity" {
 #   zone_id = data.aws_route53_zone.domain.id
-#   name    = "_amazonses.${var.domain_name}"
+#   name    = "_amazonses.${aws_ses_domain_identity.domain.domain}"
 #   type    = "TXT"
 #   ttl     = "600"
 #   records = [aws_ses_domain_identity.domain.verification_token]
@@ -23,7 +23,7 @@ resource "aws_ses_domain_mail_from" "domain" {
 resource "aws_route53_record" "domain_dkim" {
   count   = 3
   zone_id = data.aws_route53_zone.domain.id
-  name    = "${aws_ses_domain_dkim.domain.dkim_tokens[count.index]}._domainkey"
+  name    = "${aws_ses_domain_dkim.domain.dkim_tokens[count.index]}._domainkey.${aws_ses_domain_identity.domain.domain}"
   type    = "CNAME"
   ttl     = "600"
   records = ["${aws_ses_domain_dkim.domain.dkim_tokens[count.index]}.dkim.amazonses.com"]
@@ -48,14 +48,14 @@ resource "aws_route53_record" "domain_from_txt" {
 # Email receiving https://docs.aws.amazon.com/ses/latest/dg/receiving-email-mx-record.html
 resource "aws_route53_record" "domain_receiving" {
   zone_id = data.aws_route53_zone.domain.id
-  name    = var.domain_name
+  name    = aws_ses_domain_identity.domain.domain
   type    = "MX"
   ttl     = "600"
   records = ["10 inbound-smtp.${data.aws_region.current.name}.amazonaws.com"]
 }
 
 resource "aws_s3_bucket" "email" {
-  bucket = "${var.domain_name}-ses"
+  bucket = "${aws_ses_domain_identity.domain.domain}-ses"
 
   # force_destroy = true
 }
@@ -104,7 +104,6 @@ resource "aws_s3_bucket_policy" "email" {
 }
 
 resource "aws_ses_receipt_rule" "store" {
-  # For some reason this is needed
   depends_on = [
     aws_s3_bucket_policy.email
   ]
