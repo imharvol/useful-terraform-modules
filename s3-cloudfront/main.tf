@@ -20,7 +20,16 @@ resource "aws_s3_bucket" "website" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket_ownership_controls" "website" {
+  bucket = aws_s3_bucket.website.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "website" {
+  depends_on = [aws_s3_bucket_ownership_controls.website]
+
   bucket = aws_s3_bucket.website.id
   acl    = "private"
 }

@@ -57,10 +57,19 @@ resource "aws_route53_record" "domain_receiving" {
 resource "aws_s3_bucket" "email" {
   bucket = "${aws_ses_domain_identity.domain.domain}-ses"
 
-  # force_destroy = true
+  force_destroy = false
+}
+
+resource "aws_s3_bucket_ownership_controls" "email" {
+  bucket = aws_s3_bucket.email.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
 }
 
 resource "aws_s3_bucket_acl" "email" {
+  depends_on = [aws_s3_bucket_ownership_controls.email]
+
   bucket = aws_s3_bucket.email.id
   acl    = "private"
 }
