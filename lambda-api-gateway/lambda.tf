@@ -28,6 +28,10 @@ resource "aws_lambda_function" "api" {
   role    = aws_iam_role.api_function.arn
   runtime = "nodejs16.x"
   handler = "index.handler"
+
+  environment {
+    variables = var.function_environment_variables
+  }
 }
 
 resource "aws_cloudwatch_log_group" "api_function" {

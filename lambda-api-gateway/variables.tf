@@ -24,3 +24,9 @@ variable "api_origins" {
   type        = list(string)
   default     = []
 }
+
+variable "function_environment_variables" {
+  description = "Function environment variables"
+  type        = any
+  default     = {}
+}
